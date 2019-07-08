@@ -10,6 +10,7 @@ class HelloCdkStack(core.Stack):
         super().__init__(app, id)
 
         # The code that defines your stack goes here
-        bucket = s3.Bucket(self, 
+        bucket = s3.Bucket(self,
             "MyFirstBucket",
-            versioned=True,)
+            versioned=True,
+            encryption=s3.BucketEncryption.KMS_MANAGED,)

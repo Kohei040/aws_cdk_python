@@ -73,7 +73,7 @@ $ cdk ls
 HelloCdkStack
 ```
 
-- S3バケットを追加する
+- S3バケットを追加
 
 ```
 $ pip install aws-cdk.aws-s3 --user
@@ -122,7 +122,8 @@ Resources:
 Python/3.7.3
 ```
 
-- スタックの配置
+- スタックのデプロイ
+  - この段階でCloudFormationが実行され、S3バケットが作成される
 
 ```
 $ cdk deploy
@@ -136,9 +137,62 @@ HelloCdkStack: creating CloudFormation changeset...
  2/3 | 17:27:37 | CREATE_COMPLETE      | AWS::S3::Bucket    | MyFirstBucket (MyFirstBucketB8884501)
  3/3 | 17:27:38 | CREATE_COMPLETE      | AWS::CloudFormation::Stack | HelloCdkStack
 
+ ✅  HelloCdkStack
+
+Stack ARN:
+arn:aws:cloudformation:us-east-1:<AccountID>:stack/HelloCdkStack/2afdb770-a15a-11e9-b3c3-12f2c8f206e2
+```
+
+- アプリを変更(hello_cdk_stack.app)
+  - S3でAWS KMSを使用するように設定
+  - [こちら](https://docs.aws.amazon.com/ja_jp/cdk/latest/guide/getting_started.html#getting_started_credentials)の内容が一部古く、以下が違っているので注意
+    - × : encryption=s3.BucketEncryption.KmsManaged
+    - ○ : encryption=s3.BucketEncryption.KMS_MANAGED
+  - BucketEncryptionの使い方は[こちら](https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_s3/BucketEncryption.html#aws_cdk.aws_s3.BucketEncryption)参照
+
+```
+bucket = s3.Bucket(self,
+    "MyFirstBucket",
+    versioned=True,
+    encryption=s3.BucketEncryption.KMS_MANAGED,)
+```
+
+- 差分を確認
+
+```
+cdk diff
+Stack HelloCdkStack
+
+Resources
+[~] AWS::S3::Bucket MyFirstBucket MyFirstBucketB8884501
+ └─ [+] BucketEncryption
+     └─ {"ServerSideEncryptionConfiguration":[{"ServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms"}}]}
+```
+
+- 変更のデプロイ
+
+```
+$ cdk deploy
+HelloCdkStack: deploying...
+HelloCdkStack: creating CloudFormation changeset...
+ 0/2 | 19:00:23 | UPDATE_IN_PROGRESS   | AWS::S3::Bucket    | MyFirstBucket (MyFirstBucketB8884501)
+ 1/2 | 19:00:44 | UPDATE_COMPLETE      | AWS::S3::Bucket    | MyFirstBucket (MyFirstBucketB8884501)
+ 1/2 | 19:00:46 | UPDATE_COMPLETE_CLEA | AWS::CloudFormation::Stack | HelloCdkStack
+ 2/2 | 19:00:47 | UPDATE_COMPLETE      | AWS::CloudFormation::Stack | HelloCdkStack
+
 
  ✅  HelloCdkStack
 
 Stack ARN:
 arn:aws:cloudformation:us-east-1:<AccountID>:stack/HelloCdkStack/2afdb770-a15a-11e9-b3c3-12f2c8f206e2
+```
+
+- リソースの削除
+
+```
+$ cdk destroy
+Are you sure you want to delete: HelloCdkStack (y/n)? y
+HelloCdkStack: destroying...
+
+ ✅  HelloCdkStack: destroyed
 ```
