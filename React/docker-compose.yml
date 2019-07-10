@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  # React for the front
+  react:
+    build:
+      context: ./
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./public/:/react/public/
+      - ./src:/react/src/
+      # Exclude
+      - exclusion:/react/public/js
+
+volumes:
+  exclusion:
+    driver: 'local'
