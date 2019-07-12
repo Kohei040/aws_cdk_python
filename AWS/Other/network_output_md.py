@@ -11,6 +11,7 @@ def main():
     get_vpc()
     vpc_output()
     subnet_output()
+    route_table_output()
     with open(file, 'r') as f:
         print(f.read())
 
@@ -68,6 +69,35 @@ def subnet_output():
                     subnet_name = ' '
                 f.write('\n|' + subnet_name + '|' + subnet_id + '|' + subnet_cider + '|' + subnet_az + '|')
     return 0
+
+def route_table_output():
+    with open(file, 'a') as f:\
+        f.write('\n\n## Route Table')
+    for i, vpc_id in enumerate(vpc_ids):
+        with open(file, 'a') as f:
+            f.write('\n\n#### ' + vpc_names[i] + '(' + vpc_id + ')')
+            f.write('\n\n| Name | RouteTable ID | Subnet Associations | Destination | Target |\n|:--|:--|:--|:--|:--|')
+            route_table_list = client.describe_route_tables(
+                Filters=[
+                    {
+                        'Name': 'vpc-id',
+                        'Values': [
+                            vpc_id,
+                        ]
+                    },
+                ],
+            )['RouteTables']
+            for i, route_table in enumerate(route_table_list):
+                route_table_id = route_table['RouteTableId']
+                print(route_table_id)
+                subnet_associations = []
+                subnet_associations.append(route_table['Associations'])
+                print(subnet_associations)
+                try:
+                    route_table_name = route_table['Tags'][0]['Value']
+                except KeyError:
+                    route_table_name = ' '
+                print(route_table_name)
 
 if __name__ == '__main__':
     main()
