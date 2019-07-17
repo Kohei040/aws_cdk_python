@@ -9,38 +9,38 @@ Contact your AWS administrator or AWS Support if you need assistance. To learn m
 ```
 
 - IAM Policyは以下を利用
-  - 詳細は[こちら](https://docs.aws.amazon.com/ja_jp/quicksight/latest/user/set-iam-policy.html)を参照
+  - 詳細については[こちら](https://docs.aws.amazon.com/ja_jp/quicksight/latest/user/set-iam-policy.html)を参照
 
 ```
 {
     "Statement": [
         {
             "Action": [
-            "ds:AuthorizeApplication",
-            "ds:CheckAlias ",
-            "ds:CreateAlias",
-            "ds:CreateIdentityPoolDirectory",
-            "ds:DeleteDirectory",
-            "ds:DescribeDirectories",
-            "ds:DescribeTrusts",
-            "ds:UnauthorizeApplication",
-            "iam:AttachRolePolicy",
-            "iam:CreatePolicy",
-            "iam:CreatePolicyVersion",
-            "iam:CreateRole",
-            "iam:DeletePolicyVersion",
-            "iam:DeleteRole",
-            "iam:DetachRolePolicy",
-            "iam:GetPolicy",
-            "iam:GetPolicyVersion",
-            "iam:GetRole",
-            "iam:ListAccountAliases",
-            "iam:ListAttachedRolePolicies",
-            "iam:ListEntitiesForPolicy",
-            "iam:ListPolicyVersions",
-            "iam:ListRoles",
-            "s3:ListAllMyBuckets",
-            "quicksight:*"
+                "ds:AuthorizeApplication",
+                "ds:CheckAlias ",
+                "ds:CreateAlias",
+                "ds:CreateIdentityPoolDirectory",
+                "ds:DeleteDirectory",
+                "ds:DescribeDirectories",
+                "ds:DescribeTrusts",
+                "ds:UnauthorizeApplication",
+                "iam:AttachRolePolicy",
+                "iam:CreatePolicy",
+                "iam:CreatePolicyVersion",
+                "iam:CreateRole",
+                "iam:DeletePolicyVersion",
+                "iam:DeleteRole",
+                "iam:DetachRolePolicy",
+                "iam:GetPolicy",
+                "iam:GetPolicyVersion",
+                "iam:GetRole",
+                "iam:ListAccountAliases",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListEntitiesForPolicy",
+                "iam:ListPolicyVersions",
+                "iam:ListRoles",
+                "s3:ListAllMyBuckets",
+                "quicksight:*"
             ],
             "Effect": "Allow",
             "Resource": "*"
