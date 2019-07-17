@@ -17,7 +17,7 @@ Contact your AWS administrator or AWS Support if you need assistance. To learn m
         {
             "Action": [
                 "ds:AuthorizeApplication",
-                "ds:CheckAlias ",
+                "ds:CheckAlias",
                 "ds:CreateAlias",
                 "ds:CreateIdentityPoolDirectory",
                 "ds:DeleteDirectory",
