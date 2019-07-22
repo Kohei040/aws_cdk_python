@@ -37,7 +37,7 @@ def vpc_output():
 # VPCのTagに付与されているNameを識別し、取得
 def vpc_check_tag_name(vpc, id):
     try:
-        tag_name = vpc['Tags'][0]['Value']
+        tag_name = ','.join([i['Value'] for i in vpc['Tags'] if i['Key'] == 'Name'])
         return tag_name
     except KeyError:
         vpc_default = vpc['IsDefault']
@@ -74,7 +74,7 @@ def subnet_output():
                 subnet_az = subnet['AvailabilityZone']
                 subnet_cider = subnet['CidrBlock']
                 try:
-                    subnet_name = subnet['Tags'][0]['Value']
+                    subnet_name = ','.join([i['Value'] for i in subnet['Tags'] if i['Key'] == 'Name'])
                 except KeyError:
                     subnet_name = ' '
                 # Subnet情報をファイルに記述
@@ -115,7 +115,7 @@ def route_table_output():
                 destination = '<br>'.join(map(str, destinations))
                 target = '<br>'.join(map(str, targets))
                 try:
-                    route_table_name = route_table['Tags'][0]['Value']
+                    route_table_name = ','.join([i['Value'] for i in route_table['Tags'] if i['Key'] == 'Name'])
                 except:
                     route_table_name = ' '
                 # RouteTable情報をファイルに記述
@@ -135,7 +135,7 @@ def natgateway_output():
             nat_gateway_vpc = nat_gateway['VpcId']
             nat_gateway_subnet = nat_gateway['SubnetId']
             try:
-                nat_gateway_name = nat_gateway['Tags'][0]['Value']
+                nat_gateway_name = ','.join([i['Value'] for i in nat_gateway['Tags'] if i['Key'] == 'Name'])
             except:
                 nat_gateway_name = ' '
             f.write('\n|' + nat_gateway_name + '|' + nat_gateway_id + '|' + nat_gateway_pub_ip + '|' + nat_gateway_vpc + '|' + nat_gateway_subnet + '|')
