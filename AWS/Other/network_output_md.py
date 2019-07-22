@@ -128,8 +128,17 @@ def natgateway_output():
         f.write('\n\n## NAT Gateway' \
                 '\n\n| Name | NatGatewayId | PublicIp | VPC | Subnet |' \
                 '\n|:--|:--|:--|:--|:--|')
-    nat_gateways = client.describe_nat_gateways()['NatGateways']
-    print(nat_gateways)
+        nat_gateways = client.describe_nat_gateways()['NatGateways']
+        for i, nat_gateway in enumerate(nat_gateways):
+            nat_gateway_id = nat_gateway['NatGatewayId']
+            nat_gateway_pub_ip = nat_gateway['NatGatewayAddresses'][0]['PublicIp']
+            nat_gateway_vpc = nat_gateway['VpcId']
+            nat_gateway_subnet = nat_gateway['SubnetId']
+            try:
+                nat_gateway_name = nat_gateway['Tags'][0]['Value']
+            except:
+                nat_gateway_name = ' '
+            f.write('\n|' + nat_gateway_name + '|' + nat_gateway_id + '|' + nat_gateway_pub_ip + '|' + nat_gateway_vpc + '|' + nat_gateway_subnet + '|')
     return 0
 
 if __name__ == '__main__':
