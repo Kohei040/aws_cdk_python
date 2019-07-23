@@ -31,13 +31,13 @@ def vpc_output():
                 '\n|:--|:--|:--|')
         # VPC情報をファイルに記述
         for i, vpc_id in enumerate(vpc_ids):
-            f.write('\n|' + vpc_names[i] + '|' + vpc_id + '|' + vpc_cider_blocks[i] + '|')
+            f.write('\n| {0} | {1} | {2} |'.format(vpc_names[i], vpc_id, vpc_cider_blocks[i]))
     return 0
 
 # VPCのTagに付与されているNameを識別し、取得
 def vpc_check_tag_name(vpc, id):
     try:
-        tag_name = ','.join([i['Value'] for i in vpc['Tags'] if i['Key'] == 'Name'])
+        tag_name = [i['Value'] for i in vpc['Tags'] if i['Key'] == 'Name'][0]
         return tag_name
     except KeyError:
         vpc_default = vpc['IsDefault']
@@ -55,9 +55,9 @@ def subnet_output():
     # Subnetの一覧を取得
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
-            f.write('\n\n#### ' + vpc_names[i] + '(' + vpc_id + ')' \
+            f.write('\n\n#### {0} ({1})' \
                     '\n\n| Name | Subnet ID | IPv4 CIDR | AZ |' \
-                    '\n|:--|:--|:--|:--|')
+                    '\n|:--|:--|:--|:--|'.format(vpc_names[i], vpc_id))
             vpc_subnet_list = client.describe_subnets(
                 Filters=[
                     {
@@ -74,11 +74,11 @@ def subnet_output():
                 subnet_az = subnet['AvailabilityZone']
                 subnet_cider = subnet['CidrBlock']
                 try:
-                    subnet_name = ','.join([i['Value'] for i in subnet['Tags'] if i['Key'] == 'Name'])
+                    subnet_name = [i['Value'] for i in subnet['Tags'] if i['Key'] == 'Name'][0]
                 except KeyError:
                     subnet_name = ' '
                 # Subnet情報をファイルに記述
-                f.write('\n|' + subnet_name + '|' + subnet_id + '|' + subnet_cider + '|' + subnet_az + '|')
+                f.write('\n| {0} | {1} | {2} | {3} |'.format(subnet_name, subnet_id, subnet_cider, subnet_az))
     return 0
 
 # RouteTable情報をMarkdownのTable形式として出力
@@ -88,9 +88,9 @@ def route_table_output():
     # RouteTableの一覧を取得
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
-            f.write('\n\n#### ' + vpc_names[i] + '(' + vpc_id + ')' \
+            f.write('\n\n#### {0} ({1})' \
                     '\n\n| Name | RouteTable ID | Subnet Associations | Destination | Target |' \
-                    '\n|:--|:--|:--|:--|:--|')
+                    '\n|:--|:--|:--|:--|:--|'.format(vpc_names[i], vpc_id))
             route_table_list = client.describe_route_tables(
                 Filters=[
                     {
@@ -115,11 +115,11 @@ def route_table_output():
                 destination = '<br>'.join(map(str, destinations))
                 target = '<br>'.join(map(str, targets))
                 try:
-                    route_table_name = ','.join([i['Value'] for i in route_table['Tags'] if i['Key'] == 'Name'])
+                    route_table_name = [i['Value'] for i in route_table['Tags'] if i['Key'] == 'Name'][0]
                 except:
                     route_table_name = ' '
                 # RouteTable情報をファイルに記述
-                f.write('\n|' + route_table_name + '|' + route_table_id + '|' + subnet_id + '|' + destination + '|' + target + '|')
+                f.write('\n| {0} | {1} | {2} | {3} | {4} |'.format(route_table_name, route_table_id, subnet_id, destination, target))
     return 0
 
 # NAT Gatewayの情報をMarkdownのTable形式で出力
@@ -135,11 +135,12 @@ def natgateway_output():
             nat_gateway_vpc = nat_gateway['VpcId']
             nat_gateway_subnet = nat_gateway['SubnetId']
             try:
-                nat_gateway_name = ','.join([i['Value'] for i in nat_gateway['Tags'] if i['Key'] == 'Name'])
+                nat_gateway_name = [i['Value'] for i in nat_gateway['Tags'] if i['Key'] == 'Name'][0]
             except:
                 nat_gateway_name = ' '
-            f.write('\n|' + nat_gateway_name + '|' + nat_gateway_id + '|' + nat_gateway_pub_ip + '|' + nat_gateway_vpc + '|' + nat_gateway_subnet + '|')
+            f.write('\n| {0} | {1} | {2} | {3} | {4} |'.format(nat_gateway_name, nat_gateway_id, nat_gateway_pub_ip, nat_gateway_vpc, nat_gateway_subnet))
     return 0
+
 
 if __name__ == '__main__':
     main()
