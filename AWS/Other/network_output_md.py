@@ -31,7 +31,7 @@ def vpc_output():
                 '\n|:--|:--|:--|')
         # VPC情報をファイルに記述
         for i, vpc_id in enumerate(vpc_ids):
-            f.write('\n| {0} | {1} | {2} |'.format(vpc_names[i], vpc_id, vpc_cider_blocks[i]))
+            f.write(f'\n| {vpc_names[i]} | {vpc_id} | {vpc_cider_blocks[i]} |')
     return 0
 
 # VPCのTagに付与されているNameを識別し、取得
@@ -55,9 +55,9 @@ def subnet_output():
     # Subnetの一覧を取得
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
-            f.write('\n\n#### {0} ({1})' \
+            f.write(f'\n\n#### {vpc_names[i]} ({vpc_id})' \
                     '\n\n| Name | Subnet ID | IPv4 CIDR | AZ |' \
-                    '\n|:--|:--|:--|:--|'.format(vpc_names[i], vpc_id))
+                    '\n|:--|:--|:--|:--|')
             vpc_subnet_list = client.describe_subnets(
                 Filters=[
                     {
@@ -78,7 +78,7 @@ def subnet_output():
                 except KeyError:
                     subnet_name = ' '
                 # Subnet情報をファイルに記述
-                f.write('\n| {0} | {1} | {2} | {3} |'.format(subnet_name, subnet_id, subnet_cider, subnet_az))
+                f.write(f'\n| {subnet_name} | {subnet_id} | {subnet_cider} | {subnet_az} |')
     return 0
 
 # RouteTable情報をMarkdownのTable形式として出力
@@ -88,9 +88,9 @@ def route_table_output():
     # RouteTableの一覧を取得
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
-            f.write('\n\n#### {0} ({1})' \
+            f.write(f'\n\n#### {vpc_names[i]} ({vpc_id})' \
                     '\n\n| Name | RouteTable ID | Subnet Associations | Destination | Target |' \
-                    '\n|:--|:--|:--|:--|:--|'.format(vpc_names[i], vpc_id))
+                    '\n|:--|:--|:--|:--|:--|')
             route_table_list = client.describe_route_tables(
                 Filters=[
                     {
@@ -119,7 +119,7 @@ def route_table_output():
                 except:
                     route_table_name = ' '
                 # RouteTable情報をファイルに記述
-                f.write('\n| {0} | {1} | {2} | {3} | {4} |'.format(route_table_name, route_table_id, subnet_id, destination, target))
+                f.write(f'\n| {route_table_name} | {route_table_id} | {subnet_id} | {destination} | {target} |')
     return 0
 
 # NAT Gatewayの情報をMarkdownのTable形式で出力
@@ -129,18 +129,17 @@ def natgateway_output():
                 '\n\n| Name | NatGatewayId | PublicIp | VPC | Subnet |' \
                 '\n|:--|:--|:--|:--|:--|')
         nat_gateways = client.describe_nat_gateways()['NatGateways']
-        for i, nat_gateway in enumerate(nat_gateways):
-            nat_gateway_id = nat_gateway['NatGatewayId']
-            nat_gateway_pub_ip = nat_gateway['NatGatewayAddresses'][0]['PublicIp']
-            nat_gateway_vpc = nat_gateway['VpcId']
-            nat_gateway_subnet = nat_gateway['SubnetId']
+        for i, ngw in enumerate(nat_gateways):
+            ngw_id = ngw['NatGatewayId']
+            ngw_pub_ip = ngw['NatGatewayAddresses'][0]['PublicIp']
+            ngw_vpc = ngw['VpcId']
+            ngw_subnet = ngw['SubnetId']
             try:
-                nat_gateway_name = [i['Value'] for i in nat_gateway['Tags'] if i['Key'] == 'Name'][0]
+                ngw_name = [i['Value'] for i in ngw['Tags'] if i['Key'] == 'Name'][0]
             except:
-                nat_gateway_name = ' '
-            f.write('\n| {0} | {1} | {2} | {3} | {4} |'.format(nat_gateway_name, nat_gateway_id, nat_gateway_pub_ip, nat_gateway_vpc, nat_gateway_subnet))
+                ngw_name = ' '
+            f.write(f'\n| {ngw_name} | {ngw_id} | {ngw_pub_ip} | {ngw_vpc} | {ngw_subnet} |')
     return 0
-
 
 if __name__ == '__main__':
     main()
