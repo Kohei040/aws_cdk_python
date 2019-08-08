@@ -13,7 +13,7 @@ wiki_prefix_page_name = 'テーブル定義書'
 
 def main():
     """
-    Wikiに新規作成or更新するコンテンツを格納しているディレクトリ、ファイルを取得する。
+    tblsで取得したDBドキュメント(md, png)をBacklog Wikiに反映する
     コンテンツを格納するディレクトリ構成は、[./output/対象instance/対象ファイル(md, png)]とする。
     """
 
