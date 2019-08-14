@@ -4,7 +4,8 @@ import boto3
 file = 'network.md'
 client = boto3.client('ec2')
 
-vpc_ids, vpc_cider_blocks, vpc_names= [], [], []
+vpc_ids, vpc_cider_blocks, vpc_names = [], [], []
+
 
 def main():
     get_vpc()
@@ -15,7 +16,7 @@ def main():
     with open(file, 'r', encoding='utf-8') as f:
         print(f.read())
 
-# VPC情報を取得
+
 def get_vpc():
     vpc_list = client.describe_vpcs()['Vpcs']
     for i, vpc in enumerate(vpc_list):
@@ -24,17 +25,17 @@ def get_vpc():
         vpc_names.append(vpc_check_tag_name(vpc, vpc_ids[i]))
     return vpc_ids, vpc_names
 
-# VPCの情報をMarkdownのTable形式で出力
+
 def vpc_output():
     with open(file, 'w', encoding='utf-8') as f:
-        f.write('## VPC\n\n| Name | VPC ID | IPv4 CIDR |' \
+        f.write('## VPC\n\n| Name | VPC ID | IPv4 CIDR |'
                 '\n|:--|:--|:--|')
         # VPC情報をファイルに記述
         for i, vpc_id in enumerate(vpc_ids):
             f.write(f'\n| {vpc_names[i]} | {vpc_id} | {vpc_cider_blocks[i]} |')
     return 0
 
-# VPCのTagに付与されているNameを識別し、取得
+
 def vpc_check_tag_name(vpc, id):
     try:
         tag_name = [i['Value'] for i in vpc['Tags'] if i['Key'] == 'Name'][0]
@@ -48,16 +49,17 @@ def vpc_check_tag_name(vpc, id):
             tag_name = ' '
             return tag_name
 
-# Subnet情報をMarkdownのTable形式で出力
+
 def subnet_output():
     with open(file, 'a', encoding='utf-8') as f:
         f.write('\n\n## Subnet')
     # Subnetの一覧を取得
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
-            f.write(f'\n\n#### {vpc_names[i]} ({vpc_id})' \
-                    '\n\n| Name | Subnet ID | IPv4 CIDR | AZ |' \
-                    '\n|:--|:--|:--|:--|')
+            f.write(f'\n\n#### {vpc_names[i]} ({vpc_id})'
+                    '\n\n| Name | Subnet ID | IPv4 CIDR | AZ |'
+                    '\n|:--|:--|:--|:--|'
+                    )
             vpc_subnet_list = client.describe_subnets(
                 Filters=[
                     {
@@ -74,23 +76,28 @@ def subnet_output():
                 subnet_az = subnet['AvailabilityZone']
                 subnet_cider = subnet['CidrBlock']
                 try:
-                    subnet_name = [i['Value'] for i in subnet['Tags'] if i['Key'] == 'Name'][0]
+                    subnet_name = [i['Value'] for i in subnet['Tags']
+                                   if i['Key'] == 'Name'][0]
                 except KeyError:
                     subnet_name = ' '
                 # Subnet情報をファイルに記述
-                f.write(f'\n| {subnet_name} | {subnet_id} | {subnet_cider} | {subnet_az} |')
+                f.write(f'\n|{subnet_name}|{subnet_id}|'
+                        f'{subnet_cider}|{subnet_az}|'
+                        )
     return 0
 
-# RouteTable情報をMarkdownのTable形式として出力
+
 def route_table_output():
-    with open(file, 'a', encoding='utf-8') as f:\
+    with open(file, 'a', encoding='utf-8') as f:
         f.write('\n\n## Route Table')
     # RouteTableの一覧を取得
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
-            f.write(f'\n\n#### {vpc_names[i]} ({vpc_id})' \
-                    '\n\n| Name | RouteTable ID | Subnet Associations | Destination | Target |' \
-                    '\n|:--|:--|:--|:--|:--|')
+            f.write(f'\n\n#### {vpc_names[i]} ({vpc_id})'
+                    '\n\n| Name | RouteTable ID | Subnet Associations |'
+                    ' Destination | Target |'
+                    '\n|:--|:--|:--|:--|:--|'
+                    )
             route_table_list = client.describe_route_tables(
                 Filters=[
                     {
@@ -115,19 +122,23 @@ def route_table_output():
                 destination = '<br>'.join(map(str, destinations))
                 target = '<br>'.join(map(str, targets))
                 try:
-                    route_table_name = [i['Value'] for i in route_table['Tags'] if i['Key'] == 'Name'][0]
-                except:
+                    route_table_name = [i['Value'] for i in route_table['Tags']
+                                        if i['Key'] == 'Name'][0]
+                except Exception as e:
                     route_table_name = ' '
                 # RouteTable情報をファイルに記述
-                f.write(f'\n| {route_table_name} | {route_table_id} | {subnet_id} | {destination} | {target} |')
+                f.write(f'\n|{route_table_name}|{route_table_id}|'
+                        f'{subnet_id}|{destination}|{target}|'
+                        )
     return 0
 
-# NAT Gatewayの情報をMarkdownのTable形式で出力
+
 def natgateway_output():
     with open(file, 'a', encoding='utf-8') as f:
-        f.write('\n\n## NAT Gateway' \
-                '\n\n| Name | NatGatewayId | PublicIp | VPC | Subnet |' \
-                '\n|:--|:--|:--|:--|:--|')
+        f.write('\n\n## NAT Gateway'
+                '\n\n| Name | NatGatewayId | PublicIp | VPC | Subnet |'
+                '\n|:--|:--|:--|:--|:--|'
+                )
         nat_gateways = client.describe_nat_gateways()['NatGateways']
         for i, ngw in enumerate(nat_gateways):
             ngw_id = ngw['NatGatewayId']
@@ -135,11 +146,15 @@ def natgateway_output():
             ngw_vpc = ngw['VpcId']
             ngw_subnet = ngw['SubnetId']
             try:
-                ngw_name = [i['Value'] for i in ngw['Tags'] if i['Key'] == 'Name'][0]
-            except:
+                ngw_name = [i['Value'] for i in ngw['Tags']
+                            if i['Key'] == 'Name'][0]
+            except Exception as e:
                 ngw_name = ' '
-            f.write(f'\n| {ngw_name} | {ngw_id} | {ngw_pub_ip} | {ngw_vpc} | {ngw_subnet} |')
+            f.write(f'\n|{ngw_name}|{ngw_id}|{ngw_pub_ip}|'
+                    '{ngw_vpc}|{ngw_subnet}|'
+                    )
     return 0
+
 
 if __name__ == '__main__':
     main()
