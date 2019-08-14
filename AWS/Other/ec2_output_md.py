@@ -7,10 +7,12 @@ client = boto3.client('ec2')
 
 vpc_ids, vpc_names = vpc.get_vpc()
 
+
 def main():
     ec2_output()
     with open(file, 'r', encoding='utf-8') as f:
         print(f.read())
+
 
 def ec2_output():
     with open(file, 'w', encoding='utf-8') as f:
@@ -20,6 +22,7 @@ def ec2_output():
             f.write(f'\n\n## {vpc_names[i]} ({vpc_id})')
         ec2_describe(vpc_id)
     return 0
+
 
 def ec2_describe(vpc_id):
     get_instances = client.describe_instances(
@@ -36,15 +39,16 @@ def ec2_describe(vpc_id):
         instance = instances['Instances'][0]
         status = instance['State']['Name']
         try:
-            name = [i['Value'] for i in instance['Tags'] if i['Key'] == 'Name'][0]
-        except:
+            name = [i['Value'] for i in instance['Tags']
+                    if i['Key'] == 'Name'][0]
+        except Exception as e:
             name = ' '
         instance_id = instance['InstanceId']
         instance_type = instance['InstanceType']
         try:
             pub_ip = instance['PublicIpAddress']
-        except:
-            pub_ip = '\-'
+        except Exception as e:
+            pub_ip = 'None'
         pri_ip = instance['PrivateIpAddress']
         ami_id = instance['ImageId']
         subnet = instance['SubnetId']
@@ -63,37 +67,39 @@ def ec2_describe(vpc_id):
         ebs_list = []
         for ebs_id in ebs_ids:
             describe_ebs = client.describe_volumes(
-                VolumeIds = [
+                VolumeIds=[
                     ebs_id,
                 ],
             )['Volumes'][0]
             ebs_type = describe_ebs['VolumeType']
             ebs_size = describe_ebs['Size']
-            ebs_list.append(ebs_id + ' (Type: ' + ebs_type + ', Size: ' + str(ebs_size) + 'GiB)')
+            ebs_list.append(f'{ebs_id} (Type: {ebs_type}, '
+                            + f'Size: {str(ebs_size)}GiB)')
         ebs = '<br>'.join(map(str, ebs_list))
         try:
             key_name = instance['KeyName']
-        except:
-            key_name = '\-'
+        except Exception as e:
+            key_name = 'None'
         try:
             role = instance['IamInstanceProfile']['Arn']
-        except:
-            role = '\-'
+        except Exception as e:
+            role = 'None'
         with open(file, 'a', encoding='utf-8') as f:
-            f.write(f'\n\n- {name} ({instance_id})' \
-                    '\n\n| Name | Value |' \
-                    '\n|:--|:--|' \
-                    f'\n| Status | {status} |' \
-                    f'\n| Type | {instance_type} |' \
-                    f'\n| PublicIP | {pub_ip} |' \
-                    f'\n| PrivateIP | {pri_ip} |' \
-                    f'\n| AMI ID | {ami_id} |' \
-                    f'\n| Subnet | {subnet} |' \
-                    f'\n| AvailabilityZone | {az} |' \
-                    f'\n| SecurityGroup| {sg} |' \
-                    f'\n| KeyPair | {key_name} |' \
-                    f'\n| IAM Role | {role} |' \
-                    f'\n| Volume | {ebs} |')
+            f.write(f'\n\n- {name} ({instance_id})'
+                    '\n\n| Name | Value |'
+                    '\n|:--|:--|'
+                    f'\n| Status | {status} |'
+                    f'\n| Type | {instance_type} |'
+                    f'\n| PublicIP | {pub_ip} |'
+                    f'\n| PrivateIP | {pri_ip} |'
+                    f'\n| AMI ID | {ami_id} |'
+                    f'\n| Subnet | {subnet} |'
+                    f'\n| AvailabilityZone | {az} |'
+                    f'\n| SecurityGroup| {sg} |'
+                    f'\n| KeyPair | {key_name} |'
+                    f'\n| IAM Role | {role} |'
+                    f'\n| Volume | {ebs} |'
+                    )
     return 0
 
 
