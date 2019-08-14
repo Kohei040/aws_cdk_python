@@ -9,7 +9,7 @@ vpc_ids, vpc_names = vpc.get_vpc()
 
 def main():
     ec2_output()
-    with open(file, 'r') as f:
+    with open(file, 'r', encoding='utf-8') as f:
         print(f.read())
 
 def ec2_output():
