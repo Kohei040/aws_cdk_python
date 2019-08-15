@@ -28,7 +28,7 @@ def elb_describe(elb):
     scheme = elb['Scheme']
     elb_type = elb['Type']
     vpc = elb['VpcId']
-    zones = [i['SubnetId'] + ' (' + i['ZoneName'] + ')'
+    zones = [f'{i['SubnetId']} ({i['ZoneName']})'
              for i in elb['AvailabilityZones']]
     zone = '<br>'.join(map(str, zones))
     elb_sg_ids = [i for i in elb['SecurityGroups']]
@@ -45,8 +45,7 @@ def elb_describe(elb):
                 f'\n| VPC | {vpc} |'
                 f'\n| AvailabilityZone | {zone} |'
                 f'\n| SecurityGroup | {elb_sg} |'
-                f'\n| IP Address Type | {address_type} |'
-                )
+                f'\n| IP Address Type | {address_type} |')
     return elb_arn
 
 
@@ -134,8 +133,7 @@ def describe_target_group(elb_arn):
                     f'\n| HealthCheck Port | {health_check_port} |'
                     f'\n| HealthCheck Path | {health_check_path} |'
                     f'\n| HealthCheck Interval | {health_check_interval} |'
-                    f'\n| HealthCheck Timeout | {health_check_timeout}|'
-                    )
+                    f'\n| HealthCheck Timeout | {health_check_timeout}|')
     return 0
 
 
@@ -145,8 +143,8 @@ def describe_health_check(target_group_arn):
     )['TargetHealthDescriptions']
     target_ids = [i['Target']['Id'] for i in target_health_checks]
     target_states = [i['TargetHealth']['State'] for i in target_health_checks]
-    targets = [f'{target_id} ({target_states[i]})'
-               for i, target_id in enumerate(target_ids)]
+    targets = [f'{id} ({state})'
+               for id, state in zip(target_ids, target_states)]
     target_group_target = '<br>'.join(map(str, targets))
     return target_group_target
 

@@ -81,9 +81,8 @@ def subnet_output():
                 except KeyError:
                     subnet_name = ' '
                 # Subnet情報をファイルに記述
-                f.write(f'\n|{subnet_name}|{subnet_id}|'
-                        f'{subnet_cider}|{subnet_az}|'
-                        )
+                f.write(f'\n| {subnet_name} | {subnet_id} | '
+                        f'{subnet_cider} | {subnet_az} |')
     return 0
 
 
@@ -94,10 +93,9 @@ def route_table_output():
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
             f.write(f'\n\n#### {vpc_names[i]} ({vpc_id})'
-                    '\n\n| Name | RouteTable ID | Subnet Associations |'
-                    ' Destination | Target |'
-                    '\n|:--|:--|:--|:--|:--|'
-                    )
+                    '\n\n| Name | RouteTable ID | Subnet Associations | '
+                    'Destination | Target |'
+                    '\n|:--|:--|:--|:--|:--|')
             route_table_list = client.describe_route_tables(
                 Filters=[
                     {
@@ -127,9 +125,8 @@ def route_table_output():
                 except Exception as e:
                     route_table_name = ' '
                 # RouteTable情報をファイルに記述
-                f.write(f'\n|{route_table_name}|{route_table_id}|'
-                        f'{subnet_id}|{destination}|{target}|'
-                        )
+                f.write(f'\n| {route_table_name} | {route_table_id} | '
+                        f'{subnet_id} | {destination} | {target} |')
     return 0
 
 
@@ -150,9 +147,8 @@ def natgateway_output():
                             if i['Key'] == 'Name'][0]
             except Exception as e:
                 ngw_name = ' '
-            f.write(f'\n|{ngw_name}|{ngw_id}|{ngw_pub_ip}|'
-                    '{ngw_vpc}|{ngw_subnet}|'
-                    )
+            f.write(f'\n| {ngw_name} | {ngw_id} | {ngw_pub_ip} | '
+                    '{ngw_vpc} | {ngw_subnet} |')
     return 0
 
 

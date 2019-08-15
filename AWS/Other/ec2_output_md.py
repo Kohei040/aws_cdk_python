@@ -57,8 +57,8 @@ def ec2_describe(vpc_id):
                     for i in instance['NetworkInterfaces'][0]['Groups']]
         sg_ids = [i['GroupId']
                   for i in instance['NetworkInterfaces'][0]['Groups']]
-        sg_list = [f'{sg_name} ({sg_ids[i]})'
-                   for i, sg_name in enumerate(sg_names)]
+        sg_list = [f'{name} ({id})'
+                   for name, id in zip(sg_names, sg_ids)]
         sg = '<br>'.join(map(str, sg_list))
         ebs_ids = [i['Ebs']['VolumeId']
                    for i in instance['BlockDeviceMappings']]
@@ -96,8 +96,7 @@ def ec2_describe(vpc_id):
                     f'\n| SecurityGroup| {sg} |'
                     f'\n| KeyPair | {key_name} |'
                     f'\n| IAM Role | {role} |'
-                    f'\n| Volume | {ebs} |'
-                    )
+                    f'\n| Volume | {ebs} |')
     return 0
 
 
