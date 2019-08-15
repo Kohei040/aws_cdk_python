@@ -53,17 +53,15 @@ def ec2_describe(vpc_id):
         ami_id = instance['ImageId']
         subnet = instance['SubnetId']
         az = instance['Placement']['AvailabilityZone']
-        sg_names, sg_ids = [], []
-        for sg in instance['NetworkInterfaces'][0]['Groups']:
-            sg_names.append(sg['GroupName'])
-            sg_ids.append(sg['GroupId'])
-        sg_list = []
-        for i, sg_name in enumerate(sg_names):
-            sg_list.append(sg_name + ' (' + sg_ids[i] + ')')
+        sg_names = [i['GroupName']
+                    for i in instance['NetworkInterfaces'][0]['Groups']]
+        sg_ids = [i['GroupId']
+                  for i in instance['NetworkInterfaces'][0]['Groups']]
+        sg_list = [f'{sg_name} ({sg_ids[i]})'
+                   for i, sg_name in enumerate(sg_names)]
         sg = '<br>'.join(map(str, sg_list))
-        ebs_ids = []
-        for ebs in instance['BlockDeviceMappings']:
-            ebs_ids.append(ebs['Ebs']['VolumeId'])
+        ebs_ids = [i['Ebs']['VolumeId']
+                   for i in instance['BlockDeviceMappings']]
         ebs_list = []
         for ebs_id in ebs_ids:
             describe_ebs = client.describe_volumes(
@@ -74,7 +72,7 @@ def ec2_describe(vpc_id):
             ebs_type = describe_ebs['VolumeType']
             ebs_size = describe_ebs['Size']
             ebs_list.append(f'{ebs_id} (Type: {ebs_type}, '
-                            + f'Size: {str(ebs_size)}GiB)')
+                            f'Size: {str(ebs_size)}GiB)')
         ebs = '<br>'.join(map(str, ebs_list))
         try:
             key_name = instance['KeyName']
