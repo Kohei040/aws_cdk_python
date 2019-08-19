@@ -9,6 +9,7 @@ vpc_ids, vpc_cider_blocks, vpc_names = [], [], []
 
 def main():
     """
+    VPC, Subnet, Route Table, NAT Gatewayの設定を取得する関数を呼び出す。
     """
     with open(file, 'w', encoding='utf-8') as f:
         f.write('## VPC')
