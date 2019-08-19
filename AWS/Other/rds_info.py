@@ -7,7 +7,11 @@ client = boto3.client('rds')
 
 
 def main():
-    """Aurora MySQL及びRDS for MySQLの設定情報を取得"""
+    """
+    RDSインスタンスの設定情報をからAuroraかどうかを判別し、
+    AuroraもしくはRDSごとに設定を取得する為の関数を呼び出す。
+    """
+
     all_instances = client.describe_db_instances()['DBInstances']
     # AuroraもしくはRDSかを峻別
     clusters, rds_instances = [], []
@@ -36,7 +40,7 @@ def main():
 
 def describe_aurora_cluster(cluster):
     """
-    Aurora MySQLの設定情報をTable形式で生成する。
+    Auroraの設定をMarkdownのTable形式へ変換して"rds.md"に出力する。
 
     Parameters
     ------
@@ -48,6 +52,7 @@ def describe_aurora_cluster(cluster):
     cluster_instances: list
         Aurora Clusterに属するDBインスタンスのリスト。
     """
+
     describe_clusters = client.describe_db_clusters(
         DBClusterIdentifier=cluster,
     )['DBClusters']
@@ -97,8 +102,14 @@ def describe_aurora_cluster(cluster):
 
 def describe_auroara_instance(instance):
     """
-    Aurora配下のDBインスタンス情報をTable形式で生成する。
+    Aurora配下のDBインスタンス情報をMarkdownのTable形式へ変換して"rds.md"に出力する。
+
+    Paramters
+    ------
+    instance: str
+        DBインスタンスの名前。
     """
+
     describe_instances = client.describe_db_instances(
         DBInstanceIdentifier=instance,
     )['DBInstances']
@@ -134,13 +145,14 @@ def describe_auroara_instance(instance):
 
 def describe_db_instance(instance):
     """
-    RDS for MySQLの設定情報をTbale形式で生成する。
+    Auroa以外のインスタンス設定をMarkdownのTable形式へ変換して"rds.md"に出力する。
 
     Parameters
     ------
     instance: str
-        対象RDSインスタンスの名前。
+        DBインスタンスの名前。
     """
+
     describe_instances = client.describe_db_instances(
         DBInstanceIdentifier=instance,
     )['DBInstances']
@@ -204,6 +216,7 @@ def describe_db_instance(instance):
                 f'\n| Maintenance Window | {maintenance_window} |'
                 f'\n| Auto Minior Upgrade | {auto_minor_upgrade} |'
                 f'\n| IAM Role | {iam_role} |')
+
     return 0
 
 

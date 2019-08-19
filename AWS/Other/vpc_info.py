@@ -1,56 +1,89 @@
 # -*- coding: utf-8 -*-
 import boto3
 
-file = 'network.md'
+file = 'vpc.md'
 client = boto3.client('ec2')
 
 vpc_ids, vpc_cider_blocks, vpc_names = [], [], []
 
 
 def main():
-    get_vpc()
-    vpc_output()
-    subnet_output()
-    route_table_output()
+    """
+    """
+    with open(file, 'w', encoding='utf-8') as f:
+        f.write('## VPC')
+
+    vpc_ids, vpc_names = get_vpc()
+    subnet_output(vpc_ids, vpc_names)
+    route_table_output(vpc_ids, vpc_names)
     natgateway_output()
-    with open(file, 'r', encoding='utf-8') as f:
-        print(f.read())
 
 
 def get_vpc():
+    """
+    VPCの設定情報を取得し、MarkdownのTable形式へ変換して"vpc.md"に出力する。
+
+    Returns
+    ------
+    vpc_ids: list
+        VPC IDのリスト。
+    vpc_names: list
+        VPC名のリスト。
+    """
+
     vpc_list = client.describe_vpcs()['Vpcs']
     for i, vpc in enumerate(vpc_list):
         vpc_ids.append(vpc['VpcId'])
         vpc_cider_blocks.append(vpc['CidrBlock'])
         vpc_names.append(vpc_check_tag_name(vpc, vpc_ids[i]))
+
+    for name, id, cider_blocks in zip(vpc_names, vpc_ids, vpc_cider_blocks):
+        with open(file, 'a', encoding='utf-8') as f:
+            f.write('\n\n| Name | VPC ID | IPv4 CIDR |'
+                    '\n|:--|:--|:--|'
+                    f'\n|{name}|{id}|{cider_blocks}|')
+
     return vpc_ids, vpc_names
 
 
-def vpc_output():
-    with open(file, 'w', encoding='utf-8') as f:
-        f.write('## VPC\n\n| Name | VPC ID | IPv4 CIDR |'
-                '\n|:--|:--|:--|')
-        # VPC情報をファイルに記述
-        for i, vpc_id in enumerate(vpc_ids):
-            f.write(f'\n| {vpc_names[i]} | {vpc_id} | {vpc_cider_blocks[i]} |')
-    return 0
-
-
 def vpc_check_tag_name(vpc, id):
+    """
+    VPCのTagにNameが付与されているかを峻別。
+
+    Paramters
+    ------
+    vpc: str
+        VPCの名前。
+    id: str
+        VPCのID。
+
+    Returns
+    ------
+    tag_name: str
+        TagのNameに付与されている値。
+    """
+
     try:
         tag_name = [i['Value'] for i in vpc['Tags'] if i['Key'] == 'Name'][0]
-        return tag_name
     except KeyError:
         vpc_default = vpc['IsDefault']
-        if vpc_default:
-            tag_name = '(DefaultVPC)'
-            return tag_name
-        else:
-            tag_name = ' '
-            return tag_name
+        tag_name = '(DefaultVPC)' if vpc_default else ' '
+
+    return tag_name
 
 
-def subnet_output():
+def subnet_output(vpc_ids, vpc_names):
+    """
+    VPC毎にSubnetの設定情報を取得し、MarkdownのTable形式へ変換して"vpc.md"に出力する。
+
+    Paramters
+    ------
+    vpc_ids: list
+        VPC IDのリスト。
+    vpc_names: list
+        VPC名のリスト。
+    """
+
     with open(file, 'a', encoding='utf-8') as f:
         f.write('\n\n## Subnet')
     # Subnetの一覧を取得
@@ -83,10 +116,21 @@ def subnet_output():
                 # Subnet情報をファイルに記述
                 f.write(f'\n| {subnet_name} | {subnet_id} | '
                         f'{subnet_cider} | {subnet_az} |')
+
     return 0
 
 
-def route_table_output():
+def route_table_output(vpc_ids, vpc_names):
+    """
+    VPC毎にRoute Tableの設定情報を取得し、MarkdownのTable形式へ変換して"vpc.md"に出力する。
+
+    Paramters
+    ------
+    vpc_ids: list
+        VPC IDのリスト。
+    vpc_names: list
+        VPC名のリスト。
+    """
     with open(file, 'a', encoding='utf-8') as f:
         f.write('\n\n## Route Table')
     # RouteTableの一覧を取得
@@ -127,10 +171,15 @@ def route_table_output():
                 # RouteTable情報をファイルに記述
                 f.write(f'\n| {route_table_name} | {route_table_id} | '
                         f'{subnet_id} | {destination} | {target} |')
+
     return 0
 
 
 def natgateway_output():
+    """
+    NAT Gatewayの設定情報を取得し、MarkdownのTable形式へ変換して"vpc.md"に出力する。
+    """
+
     with open(file, 'a', encoding='utf-8') as f:
         f.write('\n\n## NAT Gateway'
                 '\n\n| Name | NatGatewayId | PublicIp | VPC | Subnet |'
@@ -149,6 +198,7 @@ def natgateway_output():
                 ngw_name = ' '
             f.write(f'\n| {ngw_name} | {ngw_id} | {ngw_pub_ip} | '
                     '{ngw_vpc} | {ngw_subnet} |')
+
     return 0
 
 

@@ -6,6 +6,10 @@ client = boto3.client('elbv2')
 
 
 def main():
+    """
+    ELBの基本設定を含む一覧を取得し、ELB毎に情報を整理、取得する為の関数を呼び出す。
+    """
+
     with open(file, 'w', encoding='utf-8') as f:
         f.write('# ELB')
     get_elbs = client.describe_load_balancers()['LoadBalancers']
@@ -15,12 +19,22 @@ def main():
         describe_listener(elb_arn)
         describe_target_group(elb_arn)
 
-    # 生成結果を出力
-    with open(file, 'r', encoding='utf-8') as f:
-        print(f.read())
-
 
 def elb_describe(elb):
+    """
+    ELBの基本設定をMarkdownのTable形式へ変換して"elb.md"に出力する。
+
+    Parameters
+    ------
+    elb: str
+        ELBの設定情報。
+
+    Returns
+    ------
+    elb_arn: str
+        ELBのARN。
+    """
+
     elb_arn = elb['LoadBalancerArn']
     elb_name = elb['LoadBalancerName']
     dns = elb['DNSName']
@@ -45,10 +59,20 @@ def elb_describe(elb):
                 f'\n| AvailabilityZone | {zone} |'
                 f'\n| SecurityGroup | {elb_sg} |'
                 f'\n| IP Address Type | {address_type} |')
+
     return elb_arn
 
 
 def describe_attribute(elb_arn):
+    """
+    ELBの属性情報を取得し、MarkdownのTable形式へ変換して"elb.md"に出力する。
+
+    Parameters
+    ------
+    elb_arn: str
+        ELBのARN。
+    """
+
     elb_attribute = client.describe_load_balancer_attributes(
         LoadBalancerArn=elb_arn
     )['Attributes']
@@ -73,12 +97,21 @@ def describe_attribute(elb_arn):
                 f'\n| Access Logs | {access_log} |'
                 f'\n| Access Logs Location | {access_log_location} |'
                 f'\n| Idle Timeout | {idle_timeout} |'
-                f'\n| HTTP2/ | {http2} |'
-                )
+                f'\n| HTTP2/ | {http2} |')
+
     return 0
 
 
 def describe_listener(elb_arn):
+    """
+    ELBのリスナー情報を取得し、MarkdownのTable形式へ変換して"elb.md"に出力する。
+
+    Parameters
+    ------
+    elb_arn: str
+        ELBのARN。
+    """
+
     elb_listeners = client.describe_listeners(
         LoadBalancerArn=elb_arn,
     )['Listeners']
@@ -96,12 +129,21 @@ def describe_listener(elb_arn):
                     f'\n| Protocol | {protocol[i]} |'
                     f'\n| Port | {listen_port[i]} |'
                     f'\n| Type | {action_type[i]} |'
-                    f'\n| Target Group | {target_group_arn[i]} |'
-                    )
+                    f'\n| Target Group | {target_group_arn[i]} |')
+
     return 0
 
 
 def describe_target_group(elb_arn):
+    """
+    ELBのTarget Group情報を取得し、MarkdownのTable形式へ変換して"elb.md"に出力する。
+
+    Parameters
+    ------
+    elb_arn: str
+        ELBのARN。
+    """
+
     target_groups = client.describe_target_groups(
         LoadBalancerArn=elb_arn,
     )['TargetGroups']
@@ -133,10 +175,25 @@ def describe_target_group(elb_arn):
                     f'\n| HealthCheck Path | {health_check_path} |'
                     f'\n| HealthCheck Interval | {health_check_interval} |'
                     f'\n| HealthCheck Timeout | {health_check_timeout}|')
+
     return 0
 
 
 def describe_health_check(target_group_arn):
+    """
+    Target Groupにアタッチされているインスタンスの状態を取得する。
+
+    Parameters
+    ------
+    target_group_arn: str
+        Target GroupのARN。
+
+    Returns
+    ------
+    target_group_target: str
+        Target Groupにアタッチされているインスタンスの一覧。
+    """
+
     target_health_checks = client.describe_target_health(
         TargetGroupArn=target_group_arn,
     )['TargetHealthDescriptions']
@@ -145,6 +202,7 @@ def describe_health_check(target_group_arn):
     targets = [f'{id} ({state})'
                for id, state in zip(target_ids, target_states)]
     target_group_target = '<br>'.join(map(str, targets))
+
     return target_group_target
 
 

@@ -9,6 +9,11 @@ vpc_ids, vpc_names = vpc.get_vpc()
 
 
 def main():
+    """
+    VPC毎にSecurity Groupの設定を取得し、
+    MarkdownのTable形式に変換する関数を呼びだす。
+    """
+
     with open(file, 'w', encoding='utf-8') as f:
         f.write('# Security Group')
     for vpc_id, vpc_name in zip(vpc_ids, vpc_names):
@@ -26,10 +31,20 @@ def main():
         )['SecurityGroups']
         for security_group in security_groups:
             describe_security_group(security_group)
+
     return 0
 
 
 def describe_security_group(security_group):
+    """
+    InboundとOutboundのRuleを抽出し、Rule毎に情報を整理する関数を呼び出す。
+
+    Paramters
+    ------
+    security_group: str
+        Security Groupの設定情報。
+    """
+
     name = security_group['GroupName']
     id = security_group['GroupId']
 
@@ -56,6 +71,15 @@ def describe_security_group(security_group):
 
 
 def detailed_rule(rule):
+    """
+    MarkdownのTable形式へ変換して"security_group.md"に出力する。
+
+    Paramter
+    ------
+    rule: str
+        InboundもしくはOutboundの設定。
+    """
+
     if rule['IpProtocol'] == '-1':
         protocol = 'All'
         port = 'All'

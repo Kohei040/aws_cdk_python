@@ -9,22 +9,31 @@ vpc_ids, vpc_names = vpc.get_vpc()
 
 
 def main():
-    ec2_output()
-    with open(file, 'r', encoding='utf-8') as f:
-        print(f.read())
+    """
+    VPC毎に"describe_ec2"を呼び出す。
+    """
 
-
-def ec2_output():
     with open(file, 'w', encoding='utf-8') as f:
         f.write('# EC2')
     for i, vpc_id in enumerate(vpc_ids):
         with open(file, 'a', encoding='utf-8') as f:
             f.write(f'\n\n## {vpc_names[i]} ({vpc_id})')
-        ec2_describe(vpc_id)
+        describe_ec2(vpc_id)
+
     return 0
 
 
-def ec2_describe(vpc_id):
+def describe_ec2(vpc_id):
+    """
+    VPC IDをもとにEC2の設定情報を取得し、
+    MarkdownのTable形式へ変換して"ec2.md"に出力する。
+
+    Parameters
+    ------
+    vpc_id: int
+        VPCのID。
+    """
+
     get_instances = client.describe_instances(
         Filters=[
             {
@@ -97,6 +106,7 @@ def ec2_describe(vpc_id):
                     f'\n| KeyPair | {key_name} |'
                     f'\n| IAM Role | {role} |'
                     f'\n| Volume | {ebs} |')
+
     return 0
 
 
