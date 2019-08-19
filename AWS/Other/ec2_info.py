@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import boto3
-import network_output_md as vpc
+import vpc_info as vpc
 
 file = 'ec2.md'
 client = boto3.client('ec2')

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import boto3
-import network_output_md as vpc
 
 file = 'elb.md'
 client = boto3.client('elbv2')
