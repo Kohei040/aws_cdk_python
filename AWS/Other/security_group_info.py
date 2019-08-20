@@ -72,6 +72,7 @@ def describe_security_group(security_group):
 
 def detailed_rule(rule):
     """
+    InboundもしくはOutboundの設定を整理し、
     MarkdownのTable形式へ変換して"security_group.md"に出力する。
 
     Paramter
