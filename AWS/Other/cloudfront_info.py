@@ -23,18 +23,18 @@ def main():
     return 0
 
 
-def details_distribution(id):
+def details_distribution(distribution_id):
     """
     各Distributionの設定を整理し、Markdown形式へ変換して"cloudfront.md"に出力する。
 
     Parameters
     ------
-    id: int
+    distribution_id: int
         DistributionのID。
     """
 
     distribution = client.get_distribution(
-        Id=id
+        Id=distribution_id
     )['Distribution']
 
     # General Settings
@@ -65,7 +65,7 @@ def details_distribution(id):
     logging_prefix = dist_config['Logging']['Prefix']
 
     with open(file, 'a', encoding='utf-8') as f:
-        f.write(f'\n\n## {id}'
+        f.write(f'\n\n## {distribution_id}'
                 '\n\n#### General Settings'
                 '\n\n| Key | Value |'
                 '\n|:--|:--|'
@@ -100,7 +100,7 @@ def details_distribution(id):
 
     # Default Behavior
     default_behavior = dist_config['DefaultCacheBehavior']
-    target_orgin = default_behavior['TargetOriginId']
+    target_origin = default_behavior['TargetOriginId']
     if default_behavior['ViewerProtocolPolicy'] == 'allow-all':
         protocol = 'HTTP or HTTPS'
     else:
@@ -116,7 +116,7 @@ def details_distribution(id):
         f.write('\n\n#### Default Behavior'
                 '\n\n| Key | Value |'
                 '\n|:--|:--|'
-                f'\n| Target Otigin | {target_orgin} |'
+                f'\n| Target Origin | {target_origin} |'
                 f'\n| Protocol Policy | {protocol} |'
                 f'\n| Allow Methods | {allow_method} |'
                 f'\n| Default TTL | {default_ttl} |'
