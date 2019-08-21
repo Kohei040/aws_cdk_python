@@ -79,12 +79,16 @@ def describe_records(hosted_zone_id):
 
     for record in list_records:
         name = record['Name']
+        if name[0] == '_':
+            name = f'\\{name}'
         type = record['Type']
         try:
             values = [i['Value'] for i in record['ResourceRecords']]
+            value = '<br>'.join(map(str, values))
         except KeyError:
-            values = [i for i in record['AliasTarget']['DNSName']]
-        value = '<br>'.join(map(str, values))
+            value = record['AliasTarget']['DNSName']
+        if value[0] == '_':
+            value = f'\\{value}'
         try:
             ttl = record['TTL']
         except KeyError:
