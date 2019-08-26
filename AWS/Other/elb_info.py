@@ -41,7 +41,7 @@ def elb_describe(elb):
     scheme = elb['Scheme']
     elb_type = elb['Type']
     vpc = elb['VpcId']
-    zones = [f'{i['SubnetId']} ({i['ZoneName']})'
+    zones = [i['SubnetId'] + ' (' + i['ZoneName'] + ')'
              for i in elb['AvailabilityZones']]
     zone = '<br>'.join(map(str, zones))
     elb_sg_ids = [i for i in elb['SecurityGroups']]
