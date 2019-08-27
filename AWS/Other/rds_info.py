@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import boto3
-import json
+import rds_parameter_info as parameter
 
 file = 'rds.md'
 client = boto3.client('rds')
@@ -25,16 +25,17 @@ def main():
     with open(file, 'w', encoding='utf-8') as f:
         f.write('# Aurora Cluster')
     for cluster in list(set(clusters)):
-        cluster_instances = describe_aurora_cluster(cluster)
+        cluster_instances, cluster_parameter = describe_aurora_cluster(cluster)
+        parameter.aurora_parameter_group(cluster_parameter)
         for instance in cluster_instances:
-            describe_auroara_instance(instance)
-
+            db_parameter = describe_auroara_instance(instance)
+            parameter.db_parameter_group(db_parameter)
     # RDS for MySQL
     with open(file, 'a', encoding='utf-8') as f:
         f.write('\n\n# RDS for MySQL')
     for instance in rds_instances:
-        describe_db_instance(instance)
-
+        db_parameter = describe_db_instance(instance)
+        parameter.db_parameter_group(db_parameter)
     return 0
 
 
@@ -51,13 +52,15 @@ def describe_aurora_cluster(cluster):
     ------
     cluster_instances: list
         Aurora Clusterに属するDBインスタンスのリスト。
+    cluster_parameter_group: str
+        AuroraのCluster Paramter Group名。
     """
 
     describe_clusters = client.describe_db_clusters(
         DBClusterIdentifier=cluster,
     )['DBClusters']
     for i in describe_clusters:
-        cluster_parameter_group = i['DBClusterParameterGroup']
+        cluster_parameter = i['DBClusterParameterGroup']
         subnet_group = i['DBSubnetGroup']
         cluster_status = i['Status']
         endpoint = i['Endpoint']
@@ -92,12 +95,12 @@ def describe_aurora_cluster(cluster):
                 f'\n| Security Group | {security_group} |'
                 f'\n| MultiAZ| {multi_az} |'
                 f'\n| Subnet Group | {subnet_group} |'
-                f'\n| Cluster Paramter Group | {cluster_parameter_group} |'
+                f'\n| Cluster Paramter Group | {cluster_parameter} |'
                 f'\n| Backup (Period) | {backup_window}({backup_period})|'
                 f'\n| Maintenance Window | {maintenance_window} |'
                 f'\n| IAM Role | {iam_role} |')
 
-    return cluster_instances
+    return cluster_instances, cluster_parameter
 
 
 def describe_auroara_instance(instance):
@@ -108,6 +111,11 @@ def describe_auroara_instance(instance):
     ------
     instance: str
         DBインスタンスの名前。
+
+    Returns
+    ------
+    db_parameter: str
+        RDSのDB Parameter Group名。
     """
 
     describe_instances = client.describe_db_instances(
@@ -118,7 +126,7 @@ def describe_auroara_instance(instance):
         az = i['AvailabilityZone']
         db_parameter_groups = [x['DBParameterGroupName']
                                for x in i['DBParameterGroups']]
-        db_parameter_group = '<br>'.join(map(str, db_parameter_groups))
+        db_parameter = '<br>'.join(map(str, db_parameter_groups))
         try:
             cloudwatch_logs = [x for x in i['EnabledCloudwatchLogsExports']]
             cw_log = '<br>'.join(map(str, cloudwatch_logs))
@@ -135,12 +143,12 @@ def describe_auroara_instance(instance):
                 f'\n| Instance Type | {instance_type} |'
                 f'\n| AvailabilityZone | {az} |'
                 f'\n| Public Access | {public_access} |'
-                f'\n| DB Parameter Group | {db_parameter_group} |'
+                f'\n| DB Parameter Group | {db_parameter} |'
                 f'\n| Option Group | {option_group} |'
                 f'\n| Enabled CloudWatchLogs | {cw_log} |'
                 )
 
-    return 0
+    return db_parameter
 
 
 def describe_db_instance(instance):
@@ -151,6 +159,11 @@ def describe_db_instance(instance):
     ------
     instance: str
         DBインスタンスの名前。
+
+    Returns
+    ------
+    db_parameter: str
+        RDSのDB Parameter Group名。
     """
 
     describe_instances = client.describe_db_instances(
@@ -172,7 +185,7 @@ def describe_db_instance(instance):
         security_group_id = '<br>'.join(map(str, security_group_ids))
         db_parameter_groups = [x['DBParameterGroupName']
                                for x in i['DBParameterGroups']]
-        db_parameter_group = '<br>'.join(map(str, db_parameter_groups))
+        db_parameter = '<br>'.join(map(str, db_parameter_groups))
         vpc = i['DBSubnetGroup']['VpcId']
         db_subnet_group = i['DBSubnetGroup']['DBSubnetGroupName']
         maintenance_window = i['PreferredMaintenanceWindow']
@@ -208,7 +221,7 @@ def describe_db_instance(instance):
                 f'\n| Public Access | {public_access} |'
                 f'\n| MultiAZ | {multi_az} |'
                 f'\n| Subnet Group | {db_subnet_group} |'
-                f'\n| DB Parameter Group | {db_parameter_group} |'
+                f'\n| DB Parameter Group | {db_parameter} |'
                 f'\n| Option Group | {option_group} |'
                 f'\n| Enabled CloudWatchLogs | {cw_log} |'
                 f'\n| Read Replica | {read_replica} |'
@@ -217,7 +230,7 @@ def describe_db_instance(instance):
                 f'\n| Auto Minior Upgrade | {auto_minor_upgrade} |'
                 f'\n| IAM Role | {iam_role} |')
 
-    return 0
+    return db_parameter
 
 
 if __name__ == '__main__':
