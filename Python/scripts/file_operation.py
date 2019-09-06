@@ -8,7 +8,7 @@ Pythonでファイルを取り扱う際は以下の流れとなる
 with open(ファイル名, 'w(or r)', as 変数):
 '''
 
-#　ファイルの作成、書き込み
+# ファイルの作成、書き込み
 with opne(file, 'w', encoding='utf-8') as f:
     f.write('中身')
 

@@ -11,6 +11,7 @@ project_id = xxxx
 contents_path = './output'
 wiki_prefix_page_name = 'テーブル定義書'
 
+
 def main():
     """
     tblsで取得したDBドキュメント(md, png)をBacklog Wikiに反映する
@@ -32,12 +33,15 @@ def main():
                             if not (exist_id :=check_exist_page(wiki_page_name))
                             else exist_id)
             # Wikiページにある旧添付ファイルを削除
-            [delete_wiki_file(wiki_page_id, i) for i in get_wiki_file(wiki_page_id)]
+            [delete_wiki_file(wiki_page_id, i)
+             for i in get_wiki_file(wiki_page_id)]
 
-            png_file_name = md_file.replace('.md', '.png') if md_file != 'README.md' else 'schema.png'
+            png_file_name = (md_file.replace('.md', '.png')
+                             if md_file != 'README.md' else 'schema.png')
             png_file_path = f'{file_path}/{png_file_name}'
             # Backlogにファイル送信
-            backlog_file_id = upload_file_to_backlog(png_file_path, png_file_name)
+            backlog_file_id = upload_file_to_backlog(png_file_path,
+                                                     png_file_name)
             # 送信したファイルをWikiページにアタッチ
             wiki_file_id = attach_wiki_file(wiki_page_id, backlog_file_id)
             # 画像リンクの修正
@@ -50,6 +54,7 @@ def main():
             update_wiki_page(wiki_page_id,
                              wiki_page_name,
                              wiki_content)
+
 
 def check_table_definition(instance, md_file):
     """
@@ -117,7 +122,8 @@ def get_wiki_page_list():
         'apiKey': BACKLOG_API_KEY,
         'projectIdOrKey': project_id,
     }
-    wiki_page_list = requests.get(BACKLOG_HOST + '/api/v2/wikis', params=payload).json()
+    wiki_page_list = requests.get(BACKLOG_HOST + '/api/v2/wikis',
+                                  params=payload).json()
     wiki_page_ids = [i['id'] for i in wiki_page_list]
     wiki_page_names = [i['name'] for i in wiki_page_list]
     wiki_page_dict = dict(zip(wiki_page_names, wiki_page_ids))
@@ -215,10 +221,13 @@ def upload_file_to_backlog(png_file_path, png_file_name):
     payload = {
         'apiKey': BACKLOG_API_KEY,
     }
-    upload_file = {'file': (png_file_name, open(png_file_path, 'rb'), 'image/png')}
+    upload_file = {'file': (png_file_name,
+                            open(png_file_path, 'rb'),
+                            'image/png')}
     url = f'{BACKLOG_HOST}/api/v2/space/attachment'
     try:
-        upload_file_to_backlog_req = requests.post(url, params=payload, files=upload_file).json()
+        upload_file_to_backlog_req = requests.post(url, params=payload,
+                                                   files=upload_file).json()
         send_file_id = upload_file_to_backlog_req['id']
         return send_file_id
     except Exception as e:
@@ -282,8 +291,8 @@ def update_wiki_page(wiki_page_id, wiki_page_name, wiki_content):
             print('Wikiの更新に失敗しました。')
             update_wiki_page_req_str = json.dumps(update_wiki_page_req)
             with open('./response.json', 'a', encoding='utf-8') as f:
-                f.write(f'{wiki_page_name}\n' \
-                        f'{update_wiki_page_req_str}\n' \
+                f.write(f'{wiki_page_name}\n'
+                        f'{update_wiki_page_req_str}\n'
                         f'{wiki_content}\n\n')
         else:
             print('Wikiの更新が完了しました。')
